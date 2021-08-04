@@ -50,3 +50,7 @@ func (node *TrieTreeNode) FindNode(values []string) *TrieTreeNode {
 	}
 	return curNode
 }
+
+func (node *TrieTreeNode) Value() string {
+	return node.value
+}
