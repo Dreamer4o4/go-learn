@@ -2,6 +2,7 @@ package src
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -42,5 +43,5 @@ func (sh *serverHandler) AddPostFunc(path string, handler handlerfunc) {
 }
 
 func (sh *serverHandler) Run() {
-	http.ListenAndServe(sh.addr, sh)
+	log.Fatal(http.ListenAndServe(sh.addr, sh))
 }

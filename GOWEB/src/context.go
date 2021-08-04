@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+const webPath string = "webpage/"
+
 type Context struct {
 	req  *http.Request
 	resw http.ResponseWriter
@@ -19,7 +21,7 @@ func newContext(w http.ResponseWriter, r *http.Request) *Context {
 }
 
 func (ctxt *Context) ResHtml(str string) {
-	file, err := os.Open("web/" + str)
+	file, err := os.Open(webPath + str)
 	if err != nil {
 		panic(err)
 	}
