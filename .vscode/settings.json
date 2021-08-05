@@ -1,4 +1,5 @@
 {
     "go.lintOnSave": "off",
-    "go.useLanguageServer": true
+    "go.useLanguageServer": true,
+    "go.inferGopath": false
 }
