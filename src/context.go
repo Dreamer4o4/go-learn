@@ -9,14 +9,31 @@ import (
 const webPath string = "webpage/"
 
 type Context struct {
-	req  *http.Request
-	resw http.ResponseWriter
+	Req  *http.Request
+	Resw http.ResponseWriter
+
+	allStep []handlerfunc
+	index   int
 }
 
 func newContext(w http.ResponseWriter, r *http.Request) *Context {
 	return &Context{
-		req:  r,
-		resw: w,
+		Req:   r,
+		Resw:  w,
+		index: -1,
+	}
+}
+
+func (ctxt *Context) AddSteps(handlers ...handlerfunc) {
+	ctxt.allStep = append(ctxt.allStep, handlers...)
+}
+
+func (ctxt *Context) NextStep() {
+	ctxt.index++
+
+	stepLen := len(ctxt.allStep)
+	for ; ctxt.index < stepLen; ctxt.index++ {
+		ctxt.allStep[ctxt.index](ctxt)
 	}
 }
 
@@ -28,5 +45,5 @@ func (ctxt *Context) ResHtml(str string) {
 	defer file.Close()
 
 	content, err := ioutil.ReadAll(file)
-	ctxt.resw.Write(content)
+	ctxt.Resw.Write(content)
 }
