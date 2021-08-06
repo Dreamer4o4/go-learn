@@ -76,6 +76,12 @@ func (sh *serverHandler) AddPostGroupFunc(path string, groupHandler handlerfunc)
 	sh.addGroupHandlerFunc("POST", path, groupHandler)
 }
 
+func (sh *serverHandler) StaticServer(urlPath, srcPath string) {
+	sh.AddGetFunc(urlPath+"/*", func(ctxt *Context) {
+		http.StripPrefix(urlPath, http.FileServer(http.Dir(srcPath))).ServeHTTP(ctxt.Resw, ctxt.Req)
+	})
+}
+
 func (sh *serverHandler) Run() {
 	sh.rootPath.show()
 	log.Fatal(http.ListenAndServe(sh.ipaddr, sh))
