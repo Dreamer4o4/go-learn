@@ -12,9 +12,9 @@ func main() {
 	// 	ctxt.NextStep()
 	// 	fmt.Fprintln(ctxt.Resw, "normal fun : /patha/*")
 	// })
-	sh.AddGetFunc("/pathb", func(ctxt *src.Context) {
-		fmt.Fprintln(ctxt.Resw, "normal fun : /pathb")
-	})
+	// sh.AddGetFunc("/pathb", func(ctxt *src.Context) {
+	// 	fmt.Fprintln(ctxt.Resw, "normal fun : /pathb")
+	// })
 	// sh.AddGetGroupFunc("/", func(ctxt *src.Context) {
 	// 	fmt.Fprintln(ctxt.Resw, "group fun before: /")
 	// 	ctxt.NextStep()
@@ -26,9 +26,11 @@ func main() {
 	// 	fmt.Fprintln(ctxt.Resw, "group fun after: /patha/sec/")
 	// })
 
-	// sh.AddGetFunc("/path/*", func(ctxt *src.Context) {
-	// 	http.StripPrefix("/path", http.FileServer(http.Dir("./webpage"))).ServeHTTP(ctxt.Resw, ctxt.Req)
-	// })
-	sh.StaticServer("/path", "./webpage")
+	// sh.StaticServer("/path", "./webpage")
+
+	sh.AddGetFunc("/path", func(ctxt *src.Context) {
+		names := []string{"geektutu"}
+		fmt.Println(names[100])
+	})
 	sh.Run()
 }

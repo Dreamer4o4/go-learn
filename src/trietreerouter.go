@@ -5,7 +5,7 @@ import "fmt"
 type TrieTreeRouterNode struct {
 	path         string
 	handler      handlerfunc
-	groupHandler handlerfunc
+	groupHandler []handlerfunc
 	nextNodes    map[string]*TrieTreeRouterNode
 }
 
@@ -13,7 +13,7 @@ func NewTrieTreeRouterNode(path string, handler handlerfunc) *TrieTreeRouterNode
 	return &TrieTreeRouterNode{
 		path:         path,
 		handler:      handler,
-		groupHandler: nil,
+		groupHandler: make([]handlerfunc, 0),
 		nextNodes:    make(map[string]*TrieTreeRouterNode),
 	}
 }
@@ -55,7 +55,7 @@ func (node *TrieTreeRouterNode) FindNode(paths []string) (*TrieTreeRouterNode, [
 
 	for _, curPath := range paths {
 		if curNode.groupHandler != nil {
-			groupHandler = append(groupHandler, curNode.groupHandler)
+			groupHandler = append(groupHandler, curNode.groupHandler...)
 		}
 		curNode = curNode.findNextNode(curPath)
 		if curNode == nil || curNode.path == "*" {
@@ -63,7 +63,7 @@ func (node *TrieTreeRouterNode) FindNode(paths []string) (*TrieTreeRouterNode, [
 		}
 	}
 	if curNode != nil && curNode.groupHandler != nil {
-		groupHandler = append(groupHandler, curNode.groupHandler)
+		groupHandler = append(groupHandler, curNode.groupHandler...)
 	}
 	return curNode, groupHandler
 }
@@ -87,7 +87,7 @@ func (node *TrieTreeRouterNode) FindHanlder(paths []string) (handlerfunc, []hand
 func (node *TrieTreeRouterNode) InsertGroupHandlers(paths []string, groupHandler handlerfunc) {
 	targetNode, _ := node.FindNode(paths)
 	if targetNode != nil && targetNode.groupHandler == nil {
-		targetNode.groupHandler = groupHandler
+		targetNode.groupHandler = append(targetNode.groupHandler, groupHandler)
 	}
 }
 

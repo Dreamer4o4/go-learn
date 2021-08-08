@@ -9,21 +9,24 @@ import (
 
 type handlerfunc func(ctxt *Context)
 
+const rootPath string = "root"
+
 type serverHandler struct {
-	ipaddr   string
+	ipAddr   string
 	rootPath *TrieTreeRouterNode
 }
 
-func NewServerHandler(ipaddr string) *serverHandler {
+func NewServerHandler(ipAddr string) *serverHandler {
 	return &serverHandler{
-		ipaddr:   ipaddr,
-		rootPath: NewTrieTreeRouterNode("root", nil),
+		ipAddr:   ipAddr,
+		rootPath: NewTrieTreeRouterNode(rootPath, nil),
 	}
 }
 
 func parasePath(method, path string) []string {
 	var retPath []string
 
+	// retPath = append(retPath, rootPath)
 	retPath = append(retPath, method)
 
 	if strings.HasSuffix(path, "/") {
@@ -48,6 +51,7 @@ func (sh *serverHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		context.NextStep()
 	} else {
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintln(w, "404 NOT FOUND!\npath : ", r.URL.Path)
 	}
 }
@@ -83,6 +87,8 @@ func (sh *serverHandler) StaticServer(urlPath, srcPath string) {
 }
 
 func (sh *serverHandler) Run() {
+	// sh.rootPath.InsertGroupHandlers([]string{rootPath}, recoverHandler())
+	sh.rootPath.groupHandler = append(sh.rootPath.groupHandler, recoverHandler())
 	sh.rootPath.show()
-	log.Fatal(http.ListenAndServe(sh.ipaddr, sh))
+	log.Fatal(http.ListenAndServe(sh.ipAddr, sh))
 }
