@@ -26,12 +26,12 @@ func trace(message string) string {
 func recoverHandler() handlerfunc {
 	return func(ctxt *Context) {
 		defer func() {
-			log.Printf("-----------------------\r\n")
 			if err := recover(); err != nil {
+				log.Printf("-----------------------\r\n")
 				log.Printf("%s\n\n", fmt.Sprintf("%s", trace(fmt.Sprintf("%s", err))))
 				ctxt.Resw.WriteHeader(http.StatusInternalServerError)
+				log.Printf("-----------------------\r\n")
 			}
-			log.Printf("-----------------------\r\n")
 		}()
 
 		ctxt.NextStep()
@@ -45,6 +45,6 @@ func logger() handlerfunc {
 		// Process request
 		ctxt.NextStep()
 		// Calculate resolution time
-		log.Printf("[%s] %s in %v", ctxt.Resw.Header(), ctxt.Req.Method, time.Since(t))
+		log.Printf("[%s] %s in %v", ctxt.Req.URL, ctxt.Req.Method, time.Since(t))
 	}
 }

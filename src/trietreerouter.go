@@ -1,6 +1,9 @@
 package src
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type TrieTreeRouterNode struct {
 	path         string
@@ -21,6 +24,8 @@ func NewTrieTreeRouterNode(path string, handler handlerfunc) *TrieTreeRouterNode
 func (node *TrieTreeRouterNode) insertNextNode(path string, handler handlerfunc) *TrieTreeRouterNode {
 	if _, exist := node.nextNodes[path]; !exist {
 		node.nextNodes[path] = NewTrieTreeRouterNode(path, handler)
+	} else {
+		node.nextNodes[path].handler = handler
 	}
 
 	return node.nextNodes[path]
@@ -73,6 +78,7 @@ func (node *TrieTreeRouterNode) Handler() handlerfunc {
 }
 
 func (node *TrieTreeRouterNode) InsertHandler(paths []string, handler handlerfunc) {
+	log.Print("Router : ", paths)
 	node.InsertNode(paths, handler)
 }
 
@@ -85,6 +91,7 @@ func (node *TrieTreeRouterNode) FindHanlder(paths []string) (handlerfunc, []hand
 }
 
 func (node *TrieTreeRouterNode) InsertGroupHandlers(paths []string, groupHandler handlerfunc) {
+	log.Print("Group Router : ", paths)
 	targetNode, _ := node.FindNode(paths)
 	if targetNode != nil && targetNode.groupHandler == nil {
 		targetNode.groupHandler = append(targetNode.groupHandler, groupHandler)
@@ -105,7 +112,7 @@ func (node *TrieTreeRouterNode) show() {
 				} else {
 					fmt.Print("0")
 				}
-				if curNode.groupHandler != nil {
+				if len(curNode.groupHandler) != 0 {
 					fmt.Print("1")
 				} else {
 					fmt.Print("0")

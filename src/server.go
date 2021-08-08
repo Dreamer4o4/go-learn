@@ -26,7 +26,6 @@ func NewServerHandler(ipAddr string) *serverHandler {
 func parasePath(method, path string) []string {
 	var retPath []string
 
-	// retPath = append(retPath, rootPath)
 	retPath = append(retPath, method)
 
 	if strings.HasSuffix(path, "/") {
@@ -86,9 +85,12 @@ func (sh *serverHandler) StaticServer(urlPath, srcPath string) {
 	})
 }
 
+func (sh *serverHandler) GobalHandler(handlers ...handlerfunc) {
+	sh.rootPath.groupHandler = append(sh.rootPath.groupHandler, handlers...)
+}
+
 func (sh *serverHandler) Run() {
-	// sh.rootPath.InsertGroupHandlers([]string{rootPath}, recoverHandler())
-	sh.rootPath.groupHandler = append(sh.rootPath.groupHandler, recoverHandler())
-	sh.rootPath.show()
+	sh.GobalHandler(logger(), recoverHandler())
+	// sh.rootPath.show()	//for debug
 	log.Fatal(http.ListenAndServe(sh.ipAddr, sh))
 }

@@ -26,7 +26,7 @@ func main() {
 	// 	fmt.Fprintln(ctxt.Resw, "group fun after: /patha/sec/")
 	// })
 
-	// sh.StaticServer("/path", "./webpage")
+	sh.StaticServer("/path", "./webpage")
 
 	sh.AddGetFunc("/path", func(ctxt *src.Context) {
 		names := []string{"geektutu"}
