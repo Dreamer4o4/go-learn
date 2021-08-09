@@ -1,12 +1,12 @@
 package test
 
 import (
+	"golearn/src/webserver"
 	"testing"
-	"web/src"
 )
 
-func findRouter(node *src.TrieTreeRouterNode, paths []string, t *testing.T) {
-	funVar := node.FindNode(paths)
+func findRouter(node *webserver.TrieTreeRouterNode, paths []string, t *testing.T) {
+	funVar, _ := node.FindNode(paths)
 	if funVar == nil {
 		t.Log("nil node", paths)
 	} else if funVar.Handler() == nil {
@@ -17,14 +17,14 @@ func findRouter(node *src.TrieTreeRouterNode, paths []string, t *testing.T) {
 }
 
 func TestTrieTreeNode(t *testing.T) {
-	testnode := src.NewTrieTreeRouterNode("root", nil)
-	testnode.InsertNode([]string{"l", "ll", "lll"}, func(ctxt *src.Context) {
+	testnode := webserver.NewTrieTreeRouterNode("root", nil)
+	testnode.InsertNode([]string{"l", "ll", "lll"}, func(ctxt *webserver.Context) {
 		t.Log("l-ll-lll")
 	})
-	testnode.InsertNode([]string{"l", "ll", "*"}, func(ctxt *src.Context) {
+	testnode.InsertNode([]string{"l", "ll", "*"}, func(ctxt *webserver.Context) {
 		t.Log("l-ll-*")
 	})
-	testnode.InsertNode([]string{"l", "lr", "*"}, func(ctxt *src.Context) {
+	testnode.InsertNode([]string{"l", "lr", "*"}, func(ctxt *webserver.Context) {
 		t.Log("l-lr-*")
 	})
 

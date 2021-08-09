@@ -1,12 +1,14 @@
 package test
 
-import "testing"
-import "web/src"
+import (
+	"golearn/src/webserver"
+	"testing"
+)
 
 func TestParasePath(t *testing.T) {
-	t.Log(src.ParasePath("get", "/"))
-	t.Log(src.ParasePath("get", "/asd/"))
-	t.Log(src.ParasePath("get", "/asd"))
-	t.Log(src.ParasePath("get", "asd/"))
-	t.Log(src.ParasePath("get", "/asd/asd"))
+	t.Log(webserver.ParasePath("get", "/"))
+	t.Log(webserver.ParasePath("get", "/asd/"))
+	t.Log(webserver.ParasePath("get", "/asd"))
+	t.Log(webserver.ParasePath("get", "asd/"))
+	t.Log(webserver.ParasePath("get", "/asd/asd"))
 }

@@ -2,25 +2,25 @@ package main
 
 import (
 	"fmt"
-	"web/src"
+	"golearn/src/webserver"
 )
 
 func main() {
-	sh := src.NewServerHandler(":4000")
-	// sh.AddGetFunc("/patha/*", func(ctxt *src.Context) {
+	sh := webserver.NewWebServer(":4000")
+	// sh.AddGetFunc("/patha/*", func(ctxt *webserver.Context) {
 	// 	ctxt.ResHtml("hello.html")
 	// 	ctxt.NextStep()
 	// 	fmt.Fprintln(ctxt.Resw, "normal fun : /patha/*")
 	// })
-	// sh.AddGetFunc("/pathb", func(ctxt *src.Context) {
+	// sh.AddGetFunc("/pathb", func(ctxt *webserver.Context) {
 	// 	fmt.Fprintln(ctxt.Resw, "normal fun : /pathb")
 	// })
-	// sh.AddGetGroupFunc("/", func(ctxt *src.Context) {
+	// sh.AddGetGroupFunc("/", func(ctxt *webserver.Context) {
 	// 	fmt.Fprintln(ctxt.Resw, "group fun before: /")
 	// 	ctxt.NextStep()
 	// 	fmt.Fprintln(ctxt.Resw, "group fun after: /")
 	// })
-	// sh.AddGetGroupFunc("/patha/sec/", func(ctxt *src.Context) {
+	// sh.AddGetGroupFunc("/patha/sec/", func(ctxt *webserver.Context) {
 	// 	fmt.Fprintln(ctxt.Resw, "group fun before: /patha/sec/")
 	// 	ctxt.NextStep()
 	// 	fmt.Fprintln(ctxt.Resw, "group fun after: /patha/sec/")
@@ -28,7 +28,7 @@ func main() {
 
 	sh.StaticServer("/path", "./webpage")
 
-	sh.AddGetFunc("/path", func(ctxt *src.Context) {
+	sh.AddGetFunc("/path", func(ctxt *webserver.Context) {
 		names := []string{"geektutu"}
 		fmt.Println(names[100])
 	})
