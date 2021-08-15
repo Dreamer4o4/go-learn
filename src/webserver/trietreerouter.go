@@ -98,6 +98,9 @@ func (node *TrieTreeRouterNode) InsertGroupHandlers(paths []string, groupHandler
 	}
 }
 
+/*
+**	only for debug
+ */
 func (node *TrieTreeRouterNode) show() {
 	curNodes := []*TrieTreeRouterNode{node}
 	curNum := 1

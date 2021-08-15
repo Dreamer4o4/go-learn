@@ -1,4 +1,4 @@
-package cache
+package cacheStrategy
 
 type cacheManagement struct {
 	maxCap  int64
@@ -8,7 +8,6 @@ type cacheManagement struct {
 type cacheStrategy interface {
 	push(key string, value Value)
 	pop()
-	update(key string, value Value)
 	find(key string) Value
 }
 

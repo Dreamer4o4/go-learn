@@ -11,7 +11,8 @@ import (
 
 func trace(message string) string {
 	var pcs [32]uintptr
-	n := runtime.Callers(3, pcs[:]) // skip first 3 caller
+	// skip first 3 caller
+	n := runtime.Callers(3, pcs[:])
 
 	var str strings.Builder
 	str.WriteString(message + "\nTraceback:")

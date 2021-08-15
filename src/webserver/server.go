@@ -28,6 +28,7 @@ func ParasePath(method, path string) []string {
 
 	retPath = append(retPath, method)
 
+	// remove '/' at two side of path
 	if strings.HasSuffix(path, "/") {
 		path = path[:len(path)-1]
 	}
@@ -45,11 +46,15 @@ func (sh *webServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	paths := ParasePath(r.Method, r.URL.Path)
 	if handler, groupHandlers := sh.rootPath.FindHanlder(paths); handler != nil {
 		context := newContext(w, r)
+
+		// load request handle functions
 		context.AddSteps(groupHandlers...)
 		context.AddSteps(handler)
 
+		// start
 		context.NextStep()
 	} else {
+		// wrong request
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintln(w, "404 NOT FOUND!\npath : ", r.URL.Path)
 	}
