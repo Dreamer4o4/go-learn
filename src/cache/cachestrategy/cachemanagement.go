@@ -6,11 +6,19 @@ type cacheManagement struct {
 }
 
 type cacheStrategy interface {
-	push(key string, value Value)
-	pop()
-	find(key string) Value
+	Push(key string, value Value)
+	Pop()
+	Find(key string) Value
 }
 
 type Value interface {
 	Size() int
+}
+
+type ByteValue struct {
+	value []byte
+}
+
+func (bv *ByteValue) Size() int {
+	return len(bv.value)
 }
