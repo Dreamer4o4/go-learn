@@ -25,9 +25,13 @@ func newContext(w http.ResponseWriter, r *http.Request) *Context {
 }
 
 func (ctxt *Context) AddSteps(handlers ...handlerfunc) {
+	// load cur request handle function
 	ctxt.allStep = append(ctxt.allStep, handlers...)
 }
 
+/*
+**	switch to next handle function
+ */
 func (ctxt *Context) NextStep() {
 	ctxt.index++
 
@@ -37,6 +41,9 @@ func (ctxt *Context) NextStep() {
 	}
 }
 
+/*
+**	transfer html to peer
+ */
 func (ctxt *Context) ResHtml(str string) {
 	file, err := os.Open(webPath + str)
 	if err != nil {
