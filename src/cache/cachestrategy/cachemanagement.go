@@ -7,7 +7,7 @@ type cacheManagement struct {
 
 type cacheStrategy interface {
 	Push(key string, value Value)
-	Pop()
+	Pop(key string) Value
 	Find(key string) Value
 }
 
@@ -17,6 +17,12 @@ type Value interface {
 
 type ByteValue struct {
 	value []byte
+}
+
+func NewByteValue(str string) *ByteValue {
+	return &ByteValue{
+		value: []byte(str),
+	}
 }
 
 func (bv *ByteValue) Size() int {
