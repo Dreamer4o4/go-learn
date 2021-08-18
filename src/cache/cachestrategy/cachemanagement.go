@@ -7,8 +7,8 @@ type cacheManagement struct {
 
 type cacheStrategy interface {
 	Push(key string, value Value)
-	Pop(key string) Value
-	Find(key string) Value
+	Pop(key string) (Value, bool)
+	Find(key string) (Value, bool)
 }
 
 type Value interface {

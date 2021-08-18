@@ -1,6 +1,9 @@
 package main
 
-import cacheStrategy "golearn/src/cache/cacheStrategy"
+import (
+	"fmt"
+	cacheStrategy "golearn/src/cache/cacheStrategy"
+)
 
 func main() {
 	// sh := webserver.NewWebServer(":4000")
@@ -24,4 +27,14 @@ func main() {
 	test.Push("t1", cacheStrategy.NewByteValue(str))
 	test.Push("t", cacheStrategy.NewByteValue(str))
 
+	if _, ok := test.Find("t"); ok != false {
+		fmt.Print("find t")
+	}
+
+	fmt.Print(test.Pop("t"))
+	fmt.Print(test.Pop("t"))
+
+	if _, ok := test.Find("t"); ok != false {
+		fmt.Print("find t")
+	}
 }
