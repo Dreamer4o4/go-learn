@@ -1,6 +1,6 @@
 package cacheStrategy
 
-type cacheManagement struct {
+type cacheSize struct {
 	maxCap  int64
 	curSize int64
 }

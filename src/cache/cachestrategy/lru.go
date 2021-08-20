@@ -2,12 +2,13 @@ package cacheStrategy
 
 import (
 	"container/list"
+	"fmt"
 )
 
 type lruStrategy struct {
 	lruList *list.List
 	lruMap  map[string]*list.Element
-	cacheManagement
+	cacheSize
 }
 
 type lruElement struct {
@@ -21,7 +22,7 @@ func (le *lruElement) Size() int {
 
 func NewLruStrategy(maxSize int64) *lruStrategy {
 	return &lruStrategy{
-		cacheManagement: cacheManagement{
+		cacheSize: cacheSize{
 			maxCap:  maxSize,
 			curSize: 0,
 		},
@@ -74,4 +75,13 @@ func (cache *lruStrategy) popOldElement() {
 		element := oldListElement.Value.(*lruElement)
 		cache.Pop(element.key)
 	}
+}
+
+func (cache *lruStrategy) Show() {
+	fmt.Println("---------")
+	for cur := cache.lruList.Front(); cur != nil; cur = cur.Next() {
+		fmt.Print(cur.Value.(*lruElement).key)
+		fmt.Println(cur.Value.(*lruElement).value)
+	}
+	fmt.Println("---------")
 }
