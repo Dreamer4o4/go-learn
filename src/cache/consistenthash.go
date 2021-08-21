@@ -30,6 +30,12 @@ func NewConsistentHash(hash Hash) *ConsistentHash {
 }
 
 func NewReadServerNode(addr, name string, nodeNum int) *RealServerNode {
+	if name == "" {
+		name = addr
+	}
+	if nodeNum <= 0 {
+		nodeNum = 3
+	}
 	return &RealServerNode{
 		Name:           name,
 		Addr:           addr,

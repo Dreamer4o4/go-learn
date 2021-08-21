@@ -1,4 +1,4 @@
-package webserver
+package httpServer
 
 import (
 	"fmt"
@@ -11,13 +11,13 @@ type handlerfunc func(ctxt *Context)
 
 const rootPath string = "root"
 
-type webServer struct {
+type httpServer struct {
 	ipAddr   string
 	rootPath *TrieTreeRouterNode
 }
 
-func NewWebServer(ipAddr string) *webServer {
-	return &webServer{
+func NewHttpServer(ipAddr string) *httpServer {
+	return &httpServer{
 		ipAddr:   ipAddr,
 		rootPath: NewTrieTreeRouterNode(rootPath, nil),
 	}
@@ -42,7 +42,7 @@ func ParasePath(method, path string) []string {
 	return retPath
 }
 
-func (sh *webServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (sh *httpServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	paths := ParasePath(r.Method, r.URL.Path)
 	if handler, groupHandlers := sh.rootPath.FindHanlder(paths); handler != nil {
 		context := newContext(w, r)
@@ -60,41 +60,41 @@ func (sh *webServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (sh *webServer) addHandlerFunc(method, path string, handler handlerfunc) {
+func (sh *httpServer) addHandlerFunc(method, path string, handler handlerfunc) {
 	sh.rootPath.InsertHandler(ParasePath(method, path), handler)
 }
 
-func (sh *webServer) addGroupHandlerFunc(method, path string, groupHandler handlerfunc) {
+func (sh *httpServer) addGroupHandlerFunc(method, path string, groupHandler handlerfunc) {
 	sh.rootPath.InsertGroupHandlers(ParasePath(method, path), groupHandler)
 }
 
-func (sh *webServer) AddGetFunc(path string, handler handlerfunc) {
+func (sh *httpServer) AddGetFunc(path string, handler handlerfunc) {
 	sh.addHandlerFunc("GET", path, handler)
 }
 
-func (sh *webServer) AddPostFunc(path string, handler handlerfunc) {
+func (sh *httpServer) AddPostFunc(path string, handler handlerfunc) {
 	sh.addHandlerFunc("POST", path, handler)
 }
 
-func (sh *webServer) AddGetGroupFunc(path string, groupHandler handlerfunc) {
+func (sh *httpServer) AddGetGroupFunc(path string, groupHandler handlerfunc) {
 	sh.addGroupHandlerFunc("GET", path, groupHandler)
 }
 
-func (sh *webServer) AddPostGroupFunc(path string, groupHandler handlerfunc) {
+func (sh *httpServer) AddPostGroupFunc(path string, groupHandler handlerfunc) {
 	sh.addGroupHandlerFunc("POST", path, groupHandler)
 }
 
-func (sh *webServer) StaticServer(urlPath, srcPath string) {
+func (sh *httpServer) StaticServer(urlPath, srcPath string) {
 	sh.AddGetFunc(urlPath+"/*", func(ctxt *Context) {
 		http.StripPrefix(urlPath, http.FileServer(http.Dir(srcPath))).ServeHTTP(ctxt.Resw, ctxt.Req)
 	})
 }
 
-func (sh *webServer) GobalHandler(handlers ...handlerfunc) {
+func (sh *httpServer) GobalHandler(handlers ...handlerfunc) {
 	sh.rootPath.groupHandler = append(sh.rootPath.groupHandler, handlers...)
 }
 
-func (sh *webServer) Run() {
+func (sh *httpServer) Run() {
 	sh.GobalHandler(logger(), recoverHandler())
 	// sh.rootPath.show()	//for debug
 	log.Fatal(http.ListenAndServe(sh.ipAddr, sh))

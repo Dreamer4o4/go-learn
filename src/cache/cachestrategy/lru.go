@@ -7,7 +7,7 @@ import (
 type lruStrategy struct {
 	lruList *list.List
 	lruMap  map[string]*list.Element
-	cacheManagement
+	cacheSize
 }
 
 type lruElement struct {
@@ -21,7 +21,7 @@ func (le *lruElement) Size() int {
 
 func NewLruStrategy(maxSize int64) *lruStrategy {
 	return &lruStrategy{
-		cacheManagement: cacheManagement{
+		cacheSize: cacheSize{
 			maxCap:  maxSize,
 			curSize: 0,
 		},

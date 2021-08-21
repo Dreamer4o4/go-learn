@@ -5,12 +5,12 @@ import (
 	"encoding/gob"
 )
 
-type cacheManagement struct {
+type cacheSize struct {
 	maxCap  int64
 	curSize int64
 }
 
-type cacheStrategy interface {
+type CacheStrategy interface {
 	Push(key string, value Value)
 	Pop(key string) (Value, bool)
 	Find(key string) (Value, bool)
