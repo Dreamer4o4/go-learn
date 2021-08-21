@@ -1,10 +1,5 @@
 package main
 
-import (
-	"fmt"
-	cacheStrategy "golearn/src/cache/cacheStrategy"
-)
-
 func main() {
 	// sh := webserver.NewWebServer(":4000")
 
@@ -21,20 +16,24 @@ func main() {
 
 	// sh.Run()
 
-	test := cacheStrategy.NewLruStrategy(100)
-	str := "asd"
-	test.Push("t1", cacheStrategy.NewByteValue(str))
-	test.Push("t1", cacheStrategy.NewByteValue(str))
-	test.Push("t", cacheStrategy.NewByteValue(str))
+	// test := cacheStrategy.NewLruStrategy(10)
+	// str := "asd"
+	// test.Push("t1", cacheStrategy.NewByteValue(str))
+	// test.Push("t2", cacheStrategy.NewByteValue(str))
+	// test.Push("t", cacheStrategy.NewByteValue(str))
 
-	if _, ok := test.Find("t"); ok != false {
-		fmt.Print("find t")
-	}
+	// if _, ok := test.Find("t"); ok != false {
+	// 	fmt.Print("find t")
+	// }
 
-	fmt.Print(test.Pop("t"))
-	fmt.Print(test.Pop("t"))
+	// fmt.Print(test.Pop("t"))
+	// fmt.Print(test.Pop("t"))
 
-	if _, ok := test.Find("t"); ok != false {
-		fmt.Print("find t")
-	}
+	// if _, ok := test.Find("t"); ok != false {
+	// 	fmt.Print("find t")
+	// }
+	// if _, ok := test.Find("t1"); ok != false {
+	// 	fmt.Print("find t1")
+	// }
+
 }

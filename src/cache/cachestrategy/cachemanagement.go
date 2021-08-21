@@ -1,5 +1,10 @@
 package cacheStrategy
 
+import (
+	"bytes"
+	"encoding/gob"
+)
+
 type cacheManagement struct {
 	maxCap  int64
 	curSize int64
@@ -27,4 +32,13 @@ func NewByteValue(str string) *ByteValue {
 
 func (bv *ByteValue) Size() int {
 	return len(bv.value)
+}
+
+func ToBytes(value interface{}) ([]byte, error) {
+	var res bytes.Buffer
+	enc := gob.NewEncoder(&res)
+	if err := enc.Encode(value); err != nil {
+		return nil, err
+	}
+	return res.Bytes(), nil
 }
