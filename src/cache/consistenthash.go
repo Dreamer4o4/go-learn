@@ -2,50 +2,52 @@ package cache
 
 import (
 	"fmt"
+	"hash/crc32"
 	"sort"
 )
 
 type Hash func(data []byte) uint32
 
+const defultVirtualNodeNum int = 10
+
 type ConsistentHash struct {
 	hashFunc        Hash
-	virtualToReal   map[uint32]*RealServerNode
-	realServerNodes map[string]*RealServerNode
+	virtualToReal   map[uint32]*realServerNode
+	realServerNodes map[string]*realServerNode
 	virtualNodesId  []uint32 // circle hash
 }
 
-type RealServerNode struct {
-	Name           string
+type realServerNode struct {
 	Addr           string
 	VirtualNodeNum int
 	VirtualNodesId []uint32
 }
 
 func NewConsistentHash(hash Hash) *ConsistentHash {
+	if hash == nil {
+		hash = crc32.ChecksumIEEE
+	}
+
 	return &ConsistentHash{
 		hashFunc:        hash,
-		virtualToReal:   make(map[uint32]*RealServerNode),
-		realServerNodes: make(map[string]*RealServerNode),
+		virtualToReal:   make(map[uint32]*realServerNode),
+		realServerNodes: make(map[string]*realServerNode),
 	}
 }
 
-func NewReadServerNode(addr, name string, nodeNum int) *RealServerNode {
-	if name == "" {
-		name = addr
-	}
+func NewRealServerNode(addr string, nodeNum int) *realServerNode {
 	if nodeNum <= 0 {
-		nodeNum = 3
+		nodeNum = defultVirtualNodeNum
 	}
-	return &RealServerNode{
-		Name:           name,
+	return &realServerNode{
 		Addr:           addr,
 		VirtualNodeNum: nodeNum,
 	}
 }
 
-func (ch *ConsistentHash) AddRealServer(rs RealServerNode) {
+func (ch *ConsistentHash) AddRealServer(rs realServerNode) {
 	for idx := 0; idx < rs.VirtualNodeNum; idx++ {
-		virtualNodeName := rs.Name + fmt.Sprint(idx)
+		virtualNodeName := rs.Addr + fmt.Sprint(idx)
 		virtualNodeId := ch.hashFunc([]byte(virtualNodeName))
 
 		for {
@@ -60,7 +62,7 @@ func (ch *ConsistentHash) AddRealServer(rs RealServerNode) {
 		ch.virtualNodesId = append(ch.virtualNodesId, virtualNodeId)
 		rs.VirtualNodesId = append(rs.VirtualNodesId, virtualNodeId)
 	}
-	ch.realServerNodes[rs.Name] = &rs
+	ch.realServerNodes[rs.Addr] = &rs
 
 	sort.Slice(ch.virtualNodesId, func(i, j int) bool {
 		return ch.virtualNodesId[i] < ch.virtualNodesId[j]
@@ -72,9 +74,9 @@ func (ch *ConsistentHash) AddRealServer(rs RealServerNode) {
 **	ConsistentHash only delete realServerNodes & virtualToReal, virtualNodesId lazy delete
 **	only delete realServer now, not move cache data
  */
-func (ch *ConsistentHash) RemoveRealServer(serverName string) {
-	if realServer, ok := ch.realServerNodes[serverName]; ok {
-		delete(ch.realServerNodes, serverName)
+func (ch *ConsistentHash) RemoveRealServer(serverAddr string) {
+	if realServer, ok := ch.realServerNodes[serverAddr]; ok {
+		delete(ch.realServerNodes, serverAddr)
 		for _, virtualNodeId := range realServer.VirtualNodesId {
 			delete(ch.virtualToReal, virtualNodeId)
 		}
@@ -85,9 +87,9 @@ func (ch *ConsistentHash) RemoveRealServer(serverName string) {
 **	find RealServer has k-v data
 **	lazy delete useless virtualNodesId
  */
-func (ch *ConsistentHash) FindServer(key string) *RealServerNode {
+func (ch *ConsistentHash) FindServer(key string) string {
 	if len(ch.virtualNodesId) == 0 {
-		return nil
+		return ""
 	}
 
 	keyHash := ch.hashFunc([]byte(key))
@@ -96,8 +98,8 @@ func (ch *ConsistentHash) FindServer(key string) *RealServerNode {
 			return ch.virtualNodesId[i] >= keyHash
 		})
 		idx = idx % len(ch.virtualNodesId)
-		if realSerevr, ok := ch.virtualToReal[ch.virtualNodesId[idx]]; ok {
-			return realSerevr
+		if realServer, ok := ch.virtualToReal[ch.virtualNodesId[idx]]; ok {
+			return realServer.Addr
 		} else {
 			ch.virtualNodesId = append(ch.virtualNodesId[:idx], ch.virtualNodesId[idx+1:]...)
 		}

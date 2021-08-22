@@ -2,10 +2,15 @@ package main
 
 import (
 	"fmt"
-	"golearn/src/httpServer"
+	"golearn/src/cache"
+	cacheStrategy "golearn/src/cache/cachestrategy"
+	httpServer "golearn/src/httpserver"
+	"io/ioutil"
+	"net/http"
+	"time"
 )
 
-func main() {
+func HttpServerExample() {
 	sh := httpServer.NewHttpServer(":4000")
 
 	sh.AddGetGroupFunc("/", func(ctxt *httpServer.Context) {
@@ -20,25 +25,27 @@ func main() {
 	})
 
 	sh.Run()
+}
 
-	// test := cacheStrategy.NewLruStrategy(10)
-	// str := "asd"
-	// test.Push("t1", cacheStrategy.NewByteValue(str))
-	// test.Push("t2", cacheStrategy.NewByteValue(str))
-	// test.Push("t", cacheStrategy.NewByteValue(str))
+func CacheExample() {
+	lru := cacheStrategy.NewLruStrategy(100)
+	cache.NewCacheMangement(lru, cache.NewCachePool(nil), nil)
+}
 
-	// if _, ok := test.Find("t"); ok {
-	// 	fmt.Print("find t")
-	// }
+func Foo() {
+	time.Sleep(2 * time.Second)
+	fmt.Print("--------------\r\n")
+	resp, err := http.Get("http://localhost:4000")
+	if err != nil {
+		fmt.Print("error!!!", err)
+		return
+	}
+	bytes, err := ioutil.ReadAll(resp.Body)
+	fmt.Printf("response : %s", bytes)
+}
 
-	// fmt.Print(test.Pop("t"))
-	// fmt.Print(test.Pop("t"))
-
-	// if _, ok := test.Find("t"); ok {
-	// 	fmt.Print("find t")
-	// }
-	// if _, ok := test.Find("t1"); ok {
-	// 	fmt.Print("find t1")
-	// }
-
+func main() {
+	go HttpServerExample()
+	// CacheExample()
+	Foo()
 }

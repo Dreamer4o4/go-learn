@@ -19,6 +19,10 @@ func (le *lruElement) Size() int {
 	return len(le.key) + le.value.Size()
 }
 
+func (le *lruElement) GetByteValue() []byte {
+	return append([]byte(le.key), le.value.GetByteValue()...)
+}
+
 func NewLruStrategy(maxSize int64) *lruStrategy {
 	return &lruStrategy{
 		cacheSize: cacheSize{
