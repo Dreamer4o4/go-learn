@@ -1,11 +1,16 @@
 package cacheStrategy
 
+import (
+	"bytes"
+	"encoding/gob"
+)
+
 type cacheSize struct {
 	maxCap  int64
 	curSize int64
 }
 
-type cacheStrategy interface {
+type CacheStrategy interface {
 	Push(key string, value Value)
 	Pop(key string) (Value, bool)
 	Find(key string) (Value, bool)
@@ -13,6 +18,7 @@ type cacheStrategy interface {
 
 type Value interface {
 	Size() int
+	GetByteValue() []byte
 }
 
 type ByteValue struct {
@@ -27,4 +33,19 @@ func NewByteValue(str string) *ByteValue {
 
 func (bv *ByteValue) Size() int {
 	return len(bv.value)
+}
+
+func (bv *ByteValue) GetByteValue() []byte {
+	clone := make([]byte, len(bv.value))
+	copy(clone, bv.value)
+	return clone
+}
+
+func ToBytes(value interface{}) ([]byte, error) {
+	var res bytes.Buffer
+	enc := gob.NewEncoder(&res)
+	if err := enc.Encode(value); err != nil {
+		return nil, err
+	}
+	return res.Bytes(), nil
 }
