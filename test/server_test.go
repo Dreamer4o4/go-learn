@@ -5,10 +5,10 @@ import (
 	"testing"
 )
 
-func TestParasePath(t *testing.T) {
-	t.Log(httpServer.ParasePath("get", "/"))
-	t.Log(httpServer.ParasePath("get", "/asd/"))
-	t.Log(httpServer.ParasePath("get", "/asd"))
-	t.Log(httpServer.ParasePath("get", "asd/"))
-	t.Log(httpServer.ParasePath("get", "/asd/asd"))
+func TestParasePathWithMethod(t *testing.T) {
+	t.Log(httpServer.ParasePathWithMethod("get", "/"))
+	t.Log(httpServer.ParasePathWithMethod("get", "/asd/"))
+	t.Log(httpServer.ParasePathWithMethod("get", "/asd"))
+	t.Log(httpServer.ParasePathWithMethod("get", "asd/"))
+	t.Log(httpServer.ParasePathWithMethod("get", "/asd/asd"))
 }

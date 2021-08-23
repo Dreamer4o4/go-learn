@@ -23,10 +23,8 @@ func NewHttpServer(ipAddr string) *HttpServer {
 	}
 }
 
-func ParasePath(method, path string) []string {
+func ParasePath(path string) []string {
 	var retPath []string
-
-	retPath = append(retPath, method)
 
 	// remove '/' at two side of path
 	if strings.HasSuffix(path, "/") {
@@ -39,11 +37,21 @@ func ParasePath(method, path string) []string {
 	if len(path) != 0 {
 		retPath = append(retPath, strings.Split(path, "/")...)
 	}
+
+	return retPath
+}
+
+func ParasePathWithMethod(method, path string) []string {
+	var retPath []string
+
+	retPath = append(retPath, method)
+	retPath = append(retPath, ParasePath(path)...)
+
 	return retPath
 }
 
 func (sh *HttpServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	paths := ParasePath(r.Method, r.URL.Path)
+	paths := ParasePathWithMethod(r.Method, r.URL.Path)
 	if handler, groupHandlers := sh.rootPath.FindHanlder(paths); handler != nil {
 		context := newContext(w, r)
 
@@ -61,11 +69,11 @@ func (sh *HttpServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh *HttpServer) addHandlerFunc(method, path string, handler handlerfunc) {
-	sh.rootPath.InsertHandler(ParasePath(method, path), handler)
+	sh.rootPath.InsertHandler(ParasePathWithMethod(method, path), handler)
 }
 
 func (sh *HttpServer) addGroupHandlerFunc(method, path string, groupHandler handlerfunc) {
-	sh.rootPath.InsertGroupHandlers(ParasePath(method, path), groupHandler)
+	sh.rootPath.InsertGroupHandlers(ParasePathWithMethod(method, path), groupHandler)
 }
 
 func (sh *HttpServer) AddGetFunc(path string, handler handlerfunc) {

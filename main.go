@@ -35,7 +35,7 @@ func CacheExample() {
 func Foo() {
 	time.Sleep(2 * time.Second)
 	fmt.Print("--------------\r\n")
-	resp, err := http.Get("http://localhost:4000")
+	resp, err := http.Get("http://localhost:4000/path/hello.html")
 	if err != nil {
 		fmt.Print("error!!!", err)
 		return
