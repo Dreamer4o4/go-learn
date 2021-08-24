@@ -104,6 +104,6 @@ func (sh *HttpServer) GobalHandler(handlers ...handlerfunc) {
 
 func (sh *HttpServer) Run() {
 	sh.GobalHandler(logger(), recoverHandler())
-	// sh.rootPath.show()	//for debug
+	// sh.rootPath.show() //for debug
 	log.Fatal(http.ListenAndServe(sh.ipAddr, sh))
 }

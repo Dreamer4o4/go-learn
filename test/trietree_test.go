@@ -18,6 +18,16 @@ func findRouter(node *httpServer.TrieTreeRouterNode, paths []string, t *testing.
 
 func TestTrieTreeNode(t *testing.T) {
 	testnode := httpServer.NewTrieTreeRouterNode("root", nil)
+
+	testnode.InsertNode([]string{"r", "rr"}, func(ctxt *httpServer.Context) {
+		t.Log("r-rr")
+	})
+	testnode.InsertNode([]string{"r", "rr", "rrr"}, func(ctxt *httpServer.Context) {
+		t.Log("r-rr-rrr")
+	})
+	findRouter(testnode, []string{"r", "rr"}, t)
+	findRouter(testnode, []string{"r", "rr", "rrr"}, t)
+
 	testnode.InsertNode([]string{"l", "ll", "lll"}, func(ctxt *httpServer.Context) {
 		t.Log("l-ll-lll")
 	})

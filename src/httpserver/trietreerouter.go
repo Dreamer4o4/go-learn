@@ -24,7 +24,7 @@ func NewTrieTreeRouterNode(path string, handler handlerfunc) *TrieTreeRouterNode
 func (node *TrieTreeRouterNode) insertNextNode(path string, handler handlerfunc) *TrieTreeRouterNode {
 	if _, exist := node.nextNodes[path]; !exist {
 		node.nextNodes[path] = NewTrieTreeRouterNode(path, handler)
-	} else {
+	} else if handler != nil {
 		node.nextNodes[path].handler = handler
 	}
 
@@ -87,15 +87,13 @@ func (node *TrieTreeRouterNode) FindHanlder(paths []string) (handlerfunc, []hand
 	if targetNode != nil && targetNode.Handler() != nil {
 		return targetNode.Handler(), groupHandler
 	}
-	return nil, nil
+	return nil, groupHandler
 }
 
 func (node *TrieTreeRouterNode) InsertGroupHandlers(paths []string, groupHandler handlerfunc) {
 	log.Print("Group Router : ", paths)
-	targetNode, _ := node.FindNode(paths)
-	if targetNode != nil && targetNode.groupHandler == nil {
-		targetNode.groupHandler = append(targetNode.groupHandler, groupHandler)
-	}
+	targetNode := node.InsertNode(paths, nil)
+	targetNode.groupHandler = append(targetNode.groupHandler, groupHandler)
 }
 
 /*

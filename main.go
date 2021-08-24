@@ -14,9 +14,9 @@ func HttpServerExample() {
 	sh := httpServer.NewHttpServer(":4000")
 
 	sh.AddGetGroupFunc("/", func(ctxt *httpServer.Context) {
-		fmt.Fprintln(ctxt.Resw, "group fun before: /")
+		fmt.Println("group fun before: /")
 		ctxt.NextStep()
-		fmt.Fprintln(ctxt.Resw, "group fun after: /")
+		fmt.Println("group fun after: /")
 	})
 	sh.StaticServer("/path", "./webpage")
 	sh.AddGetFunc("/path", func(ctxt *httpServer.Context) {
@@ -33,7 +33,7 @@ func CacheExample() {
 }
 
 func Foo() {
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 	fmt.Print("--------------\r\n")
 	resp, err := http.Get("http://localhost:4000/path/hello.html")
 	if err != nil {
