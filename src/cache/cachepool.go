@@ -26,11 +26,11 @@ type localCacheGetter interface {
 }
 
 const defultProtocol string = "http"
-const defultCachePath string = "/cache/"
+const defultCachePath string = "/cache"
 
-type getCache func(key string) ([]byte, bool)
+type GetCache func(key string) ([]byte, bool)
 
-func (f getCache) Query(key string) ([]byte, bool) {
+func (f GetCache) Query(key string) ([]byte, bool) {
 	return f(key)
 }
 
@@ -64,10 +64,10 @@ func (cp *CachePool) GetPeer(key string) peerCache {
 }
 
 /*
-**	only for key query
+**	only for key query, basePath/key/nonsense
  */
 func (cp *CachePool) init(basePath string) {
-	cp.localServer.AddGetGroupFunc(basePath, func(ctxt *httpServer.Context) {
+	cp.localServer.AddGetFunc(basePath+"/*", func(ctxt *httpServer.Context) {
 		if paths := httpServer.ParasePath(ctxt.Req.URL.Path); len(paths) > 1 {
 			queryKey := paths[len(httpServer.ParasePath(basePath))]
 
@@ -86,11 +86,11 @@ func (cp *CachePool) init(basePath string) {
 	})
 }
 
-func (cp *CachePool) registerCacheGetter(cb getCache) {
+func (cp *CachePool) registerCacheGetter(cb localCacheGetter) {
 	cp.localCache = cb
 }
 
-func (cp *CachePool) Run(cb getCache) {
+func (cp *CachePool) Run(cb localCacheGetter) {
 	cp.registerCacheGetter(cb)
 	cp.init(defultCachePath)
 	cp.localServer.Run()
@@ -105,7 +105,7 @@ func newCacheClient(peerAddr, protocol, cachePath string) *cacheClient {
 }
 
 func (cl *cacheClient) GetValue(key string) ([]byte, error) {
-	url := cl.Protocol + "://" + cl.PeerAddr + cl.CachePath + key
+	url := cl.Protocol + "://" + cl.PeerAddr + cl.CachePath + "/" + key
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
