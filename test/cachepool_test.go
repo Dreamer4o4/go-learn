@@ -38,8 +38,8 @@ func TestCacheClient(t *testing.T) {
 	}))
 
 	cm.AddRmoteCache("127.0.0.1:4001", 1)
-	ret, _ := cm.GetPeer("3").GetValue("3")
+	ret, _ := cm.GetValue("3")
 	t.Log(ret)
-	ret, _ = cm.GetPeer("4").GetValue("4")
+	ret, _ = cm.GetValue("4")
 	t.Log(ret)
 }

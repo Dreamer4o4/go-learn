@@ -8,6 +8,9 @@ import (
 	"sync"
 )
 
+const defultProtocol string = "http"
+const defultCachePath string = "/cache"
+
 type CachePool struct {
 	mtx          sync.Mutex
 	remoteServer *ConsistentHash
@@ -15,7 +18,7 @@ type CachePool struct {
 	localCache   localCacheGetter
 }
 
-type cacheClient struct {
+type CacheClient struct {
 	Protocol  string
 	PeerAddr  string
 	CachePath string
@@ -24,9 +27,6 @@ type cacheClient struct {
 type localCacheGetter interface {
 	Query(key string) ([]byte, bool)
 }
-
-const defultProtocol string = "http"
-const defultCachePath string = "/cache"
 
 type GetCache func(key string) ([]byte, bool)
 
@@ -53,7 +53,7 @@ func (cp *CachePool) RemoveRemoteCache(addr string) {
 	cp.remoteServer.RemoveRealServer(addr)
 }
 
-func (cp *CachePool) GetPeer(key string) peerCache {
+func (cp *CachePool) GetPeer(key string) *CacheClient {
 	cp.mtx.Lock()
 	defer cp.mtx.Unlock()
 	if peerAddr := cp.remoteServer.FindServer(key); peerAddr != "" {
@@ -61,6 +61,13 @@ func (cp *CachePool) GetPeer(key string) peerCache {
 		return peerClient
 	}
 	return nil
+}
+
+func (cp *CachePool) GetValue(key string) ([]byte, error) {
+	if peerClient := cp.GetPeer(key); peerClient != nil {
+		return peerClient.GetValue(key)
+	}
+	return nil, errors.New("CachePool empty")
 }
 
 /*
@@ -96,15 +103,15 @@ func (cp *CachePool) Run(cb localCacheGetter) {
 	cp.localServer.Run()
 }
 
-func newCacheClient(peerAddr, protocol, cachePath string) *cacheClient {
-	return &cacheClient{
+func newCacheClient(peerAddr, protocol, cachePath string) *CacheClient {
+	return &CacheClient{
 		PeerAddr:  peerAddr,
 		Protocol:  protocol,
 		CachePath: cachePath,
 	}
 }
 
-func (cl *cacheClient) GetValue(key string) ([]byte, error) {
+func (cl *CacheClient) GetValue(key string) ([]byte, error) {
 	url := cl.Protocol + "://" + cl.PeerAddr + cl.CachePath + "/" + key
 	resp, err := http.Get(url)
 	if err != nil {
