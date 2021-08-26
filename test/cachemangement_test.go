@@ -4,18 +4,27 @@ import (
 	"golearn/src/cache"
 	cacheStrategy "golearn/src/cache/cachestrategy"
 	"testing"
+	"time"
 )
 
 func TestCacheMangement(t *testing.T) {
-	db := map[string]string{
+	db1 := map[string]string{
 		"1": "111",
 		"2": "222",
 		"3": "333",
 	}
 
+	db2 := map[string]string{
+		"12": "111",
+		"22": "222",
+		"32": "333",
+	}
+
 	cp := cache.NewCachePool(":4000", nil)
+	cp.AddRmoteCache("192.168.146.1:4000", 10)
+	cp.AddRmoteCache("192.168.200.128:4001", 10)
 	cm := cache.NewCacheMangement(cacheStrategy.NewLruStrategy(100), cp, cache.LoadFunc(func(key string) ([]byte, bool) {
-		if v, ok := db[key]; ok {
+		if v, ok := db1[key]; ok {
 			t.Log("load : ", key)
 			return []byte(v), ok
 		}
@@ -23,12 +32,33 @@ func TestCacheMangement(t *testing.T) {
 		return nil, false
 	}))
 	go cp.Run(cache.GetCache(cm.GetValueLocal))
-	cp.AddRmoteCache("127.0.0.1:4000", 1)
 
-	cm.GetValue("1")
-	cm.GetValue("2")
-	cm.GetValue("1")
-	cm.GetValue("3")
-	cm.GetValue("1")
+	cp2 := cache.NewCachePool(":4001", nil)
+	cp2.AddRmoteCache("192.168.146.1:4000", 10)
+	cp2.AddRmoteCache("192.168.200.128:4001", 10)
+	cache2 := cacheStrategy.NewLruStrategy(100)
+	for k, v := range db2 {
+		cache2.Push(k, cacheStrategy.NewByteValue(v))
+	}
+	cm2 := cache.NewCacheMangement(cache2, cp, cache.LoadFunc(func(key string) ([]byte, bool) {
+		if v, ok := db2[key]; ok {
+			t.Log("load : ", key)
+			return []byte(v), ok
+		}
+		t.Log("query nil : ", key)
+		return nil, false
+	}))
+	go cp2.Run(cache.GetCache(cm2.GetValueLocal))
 
+	time.Sleep(1 * time.Second)
+	client := cache.NewCachePool("", nil)
+	go client.Run(nil)
+	client.AddRmoteCache("127.0.0.1:4000", 10)
+	client.AddRmoteCache("127.0.0.1:4001", 10)
+	client.GetValue("1")
+	client.GetValue("2")
+	client.GetValue("3")
+	client.GetValue("12")
+	client.GetValue("22")
+	client.GetValue("32")
 }

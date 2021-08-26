@@ -9,11 +9,11 @@ import (
 type CacheMangement struct {
 	mtx        sync.Mutex
 	localCache cacheStrategy.CacheStrategy
-	peer       peerCache
+	peer       cacheServer
 	loader     loadCallBack
 }
 
-type peerCache interface {
+type cacheServer interface {
 	GetValue(key string) ([]byte, error)
 }
 
@@ -27,7 +27,7 @@ func (lf LoadFunc) Load(key string) ([]byte, bool) {
 	return lf(key)
 }
 
-func NewCacheMangement(local cacheStrategy.CacheStrategy, peer peerCache, load loadCallBack) *CacheMangement {
+func NewCacheMangement(local cacheStrategy.CacheStrategy, peer cacheServer, load loadCallBack) *CacheMangement {
 	return &CacheMangement{
 		localCache: local,
 		peer:       peer,

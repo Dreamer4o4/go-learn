@@ -35,9 +35,14 @@ func (f GetCache) Query(key string) ([]byte, bool) {
 }
 
 func NewCachePool(localAddr string, hash Hash) *CachePool {
+	var localServer *httpServer.HttpServer = nil
+	if localAddr != "" {
+		localServer = httpServer.NewHttpServer(localAddr)
+	}
+
 	return &CachePool{
 		remoteServer: NewConsistentHash(hash),
-		localServer:  httpServer.NewHttpServer(localAddr),
+		localServer:  localServer,
 	}
 }
 
@@ -57,7 +62,7 @@ func (cp *CachePool) GetPeer(key string) *CacheClient {
 	cp.mtx.Lock()
 	defer cp.mtx.Unlock()
 	if peerAddr := cp.remoteServer.FindServer(key); peerAddr != "" {
-		peerClient := newCacheClient(peerAddr, defultProtocol, defultCachePath)
+		peerClient := NewCacheClient(peerAddr, defultProtocol, defultCachePath)
 		return peerClient
 	}
 	return nil
@@ -74,7 +79,16 @@ func (cp *CachePool) GetValue(key string) ([]byte, error) {
 **	only for key query, basePath/key/nonsense
  */
 func (cp *CachePool) init(basePath string) {
+	if cp.localServer == nil {
+		return
+	}
+
 	cp.localServer.AddGetFunc(basePath+"/*", func(ctxt *httpServer.Context) {
+		if cp.localCache == nil {
+			ctxt.Resw.WriteHeader(http.StatusNotFound)
+			return
+		}
+
 		if paths := httpServer.ParasePath(ctxt.Req.URL.Path); len(paths) > 1 {
 			queryKey := paths[len(httpServer.ParasePath(basePath))]
 
@@ -98,12 +112,16 @@ func (cp *CachePool) registerCacheGetter(cb localCacheGetter) {
 }
 
 func (cp *CachePool) Run(cb localCacheGetter) {
+	if cp.localServer == nil {
+		return
+	}
+
 	cp.registerCacheGetter(cb)
 	cp.init(defultCachePath)
 	cp.localServer.Run()
 }
 
-func newCacheClient(peerAddr, protocol, cachePath string) *CacheClient {
+func NewCacheClient(peerAddr, protocol, cachePath string) *CacheClient {
 	return &CacheClient{
 		PeerAddr:  peerAddr,
 		Protocol:  protocol,
