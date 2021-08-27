@@ -6,15 +6,23 @@ import (
 	"sync"
 )
 
+/*
+**	only manage local cache
+ */
 type CacheMangement struct {
 	mtx        sync.Mutex
 	localCache cacheStrategy.CacheStrategy
 	peer       cacheServer
-	loader     loadCallBack
+	loader     loadCallBack //	callback while cache miss
 }
 
+/*
+**	manage all server include local & remote
+**	localCacheGetter : is used to get local cache value
+ */
 type cacheServer interface {
 	GetValue(key string) ([]byte, error)
+	Run(cb localCacheGetter)
 }
 
 type loadCallBack interface {
@@ -28,11 +36,13 @@ func (lf LoadFunc) Load(key string) ([]byte, bool) {
 }
 
 func NewCacheMangement(local cacheStrategy.CacheStrategy, peer cacheServer, load loadCallBack) *CacheMangement {
-	return &CacheMangement{
+	ret := &CacheMangement{
 		localCache: local,
 		peer:       peer,
 		loader:     load,
 	}
+	go peer.Run(GetCache(ret.GetValueLocal))
+	return ret
 }
 
 func (cm *CacheMangement) GetValue(key string) ([]byte, bool) {

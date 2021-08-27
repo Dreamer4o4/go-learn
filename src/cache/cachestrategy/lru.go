@@ -73,6 +73,9 @@ func (cache *lruStrategy) Find(key string) (Value, bool) {
 	return nil, false
 }
 
+/*
+**	is used to pop the oldest element
+ */
 func (cache *lruStrategy) popOldElement() {
 	if cache.lruList.Len() != 0 {
 		oldListElement := cache.lruList.Back()
@@ -81,6 +84,9 @@ func (cache *lruStrategy) popOldElement() {
 	}
 }
 
+/*
+**	for debug
+ */
 func (cache *lruStrategy) Show() {
 	fmt.Println("---------")
 	for cur := cache.lruList.Front(); cur != nil; cur = cur.Next() {
