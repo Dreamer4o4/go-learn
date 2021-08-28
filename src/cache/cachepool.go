@@ -18,6 +18,9 @@ type CachePool struct {
 	localCache   localCacheGetter
 }
 
+/*
+**	http client, query server to get cache value
+ */
 type CacheClient struct {
 	Protocol  string
 	PeerAddr  string
