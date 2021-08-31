@@ -5,6 +5,7 @@ import (
 	"golearn/src/cache"
 	cacheStrategy "golearn/src/cache/cachestrategy"
 	httpServer "golearn/src/httpserver"
+	"golearn/src/util"
 )
 
 func HttpServerExample() {
@@ -53,8 +54,12 @@ func CacheExample() {
 }
 
 func Foo() {
-	conf := []int{1, 2, 3}
-
+	var data struct {
+		Name string
+		Age  string
+	}
+	util.ReadJsonConfig("conf/test.json", &data)
+	fmt.Println(data)
 }
 
 func main() {
